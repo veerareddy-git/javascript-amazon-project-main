@@ -1,8 +1,12 @@
+import {cart, addToCart} from '../data/cart.js';
+import { products } from '../data/products.js';
+import {formattingMoney} from '../data/utils/money.js'
 
- let productsHtml = '';
-products.forEach(productObj=>{
+let productsHtml = '';
+products.forEach(productObj => {
   productsHtml += `
    <div class="product-container">
+
           <div class="product-image-container">
             <img class="product-image"
               src="${productObj.image}">
@@ -21,11 +25,11 @@ products.forEach(productObj=>{
           </div>
 
           <div class="product-price">
-            $${productObj.priceCents /100}
+            $${formattingMoney(productObj.priceCents)}
           </div>
 
           <div class="product-quantity-container">
-            <select>
+            <select class="js-quantity-selector">
               <option selected value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -46,12 +50,30 @@ products.forEach(productObj=>{
             Added
           </div>
 
-          <button class="add-to-cart-button button-primary">
+          <button class="add-to-cart-button button-primary js-add-cart"
+           data-product-id="${productObj.id}">
             Add to Cart
           </button>
-        </div>
-  `
-})
+
+    </div>
+  `;
+});
+
+
+function getTotalQuantity() {
+  return cart.reduce((sum, item) => sum + item.quantity, 0);
+}
 
 document.querySelector('.js-grid-container').innerHTML = productsHtml;
-console.log(productsHtml);
+document.querySelectorAll('.js-add-cart').forEach((button) => {
+  button.addEventListener('click', () => {
+
+  const productId = button.dataset.productId;
+  const container = button.closest('.product-container');
+  const quantity = Number(container.querySelector('.js-quantity-selector').value);
+  addToCart(productId, quantity)
+  const totalQuantity = getTotalQuantity();
+   document.querySelector('.js-cart-quantity').innerHTML = totalQuantity;
+  });
+
+});
